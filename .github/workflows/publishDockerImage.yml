@@ -45,9 +45,9 @@ jobs:
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
-      - run: docker save pratikimprowise/rover:test | gzip > rover.tar.gz
+      - run: docker save pratikimprowise/rover:test | gzip > rover.zip
 
       - uses: actions/upload-artifact@v2
         with:
           name: rover-container-image
-          path: rover.tar.gz
+          path: rover.zip
