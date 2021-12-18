@@ -41,7 +41,7 @@ jobs:
           context: .
           push: false
           load: true
-          tags: pratikimprowise`/rover:test
+          tags: pratikimprowise/rover:test
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
