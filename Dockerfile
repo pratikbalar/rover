@@ -1,40 +1,31 @@
-# Prep base stage
 ARG TF_VERSION=light
 
-# Build ui
+FROM pratikimprowise/upx as upx
+FROM hashicorp/terraform:$TF_VERSION AS terraform
+
 FROM node:16-alpine as ui
 WORKDIR /src
-# Copy specific package files
-COPY ./ui/package-lock.json ./
-COPY ./ui/package.json ./
-# Set Progress, Config and install
+COPY ./ui/package*.json ./
 RUN npm set progress=false && npm config set depth 0 && npm install
-# Copy source
-# Copy Specific Directories
 COPY ./ui/public ./public
 COPY ./ui/src ./src
-# build (to dist folder)
 RUN npm run build
 
-# Build rover
-FROM golang:1.17 AS rover
+FROM golang:1.17-alpine AS rover
+COPY --from=upx / /
 WORKDIR /src
-# Copy full source
+RUN apk add --no-cache ca-certificates && update-ca-certificates
+COPY go.* .
+RUN go mod download
 COPY . .
-# Copy ui/dist from ui stage as it needs to embedded
 COPY --from=ui ./src/dist ./ui/dist
-# Build rover
-RUN go get -d -v golang.org/x/net/html  
-RUN CGO_ENABLED=0 GOOS=linux go build -o rover .
+RUN CGO_ENABLED=0 GOOS=linux go build -trimpath -ldflags "-s -w"
+RUN upx -9 rover
 
-# Release stage
-FROM hashicorp/terraform:$TF_VERSION AS release
-# Copy terraform binary to the rover's default terraform path
-RUN cp /bin/terraform /usr/local/bin/terraform
-# Copy rover binary
-COPY --from=rover /src/rover /bin/rover
-RUN chmod +x /bin/rover
-
+FROM scratch as release
+WORKDIR /tmp
 WORKDIR /src
-
+COPY --from=terraform /bin/terraform  /usr/local/bin/terraform
+COPY --from=rover     /etc/ssl/certs/ /etc/ssl/certs/
+COPY --from=rover     /src/rover      /usr/local/bin/
 ENTRYPOINT [ "/bin/rover" ]
