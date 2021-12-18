@@ -27,5 +27,5 @@ WORKDIR /tmp
 WORKDIR /src
 COPY --from=terraform /bin/terraform  /usr/local/bin/terraform
 COPY --from=rover     /etc/ssl/certs/ /etc/ssl/certs/
-COPY --from=rover     /src/rover      /usr/local/bin/
+COPY --from=rover     /src/rover      /usr/local/bin/rover
 ENTRYPOINT [ "/bin/rover" ]
