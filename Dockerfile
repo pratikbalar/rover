@@ -31,7 +31,7 @@ RUN --mount=type=bind,target=.,rw \
 
 FROM vendored AS binary
 ARG TARGETPLATFORM
-COPY --from=ui /src/dist /usr/local/bin/
+COPY --from=ui /src/dist ./ui/dist
 RUN --mount=type=bind,source=.,target=/src,rw \
   --mount=type=cache,target=/root/.cache \
   --mount=type=cache,target=/go/pkg/mod \
