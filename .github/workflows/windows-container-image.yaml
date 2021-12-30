@@ -1,0 +1,24 @@
+name: windows-container-image
+
+# Run whenever the publish job runs
+on:
+  push:
+    paths:
+      - ".github/workflows/windows-container-image.yaml"
+      - "Dockerfile.windows"
+
+jobs:
+  windows-container-image:
+    runs-on: windows-2022
+    steps:
+      - uses: actions/checkout@v1
+      - name: Pull Dependencies
+        run: |
+          docker pull 'mcr.microsoft.com/windows/nanoserver:ltsc2022'
+          docker pull 'mcr.microsoft.com/windows/servercore:ltsc2022'
+      - name: Build
+        run: docker build --tag 'pratikimprowise/rover:test-windows' --tag 'image-list-marker' -f Dockerfile.windows .
+      - name: History
+        run: docker history 'pratikimprowise/rover:test-windows'
+      - name: '"docker images"'
+        run: docker image ls --filter since=image-list-marker
