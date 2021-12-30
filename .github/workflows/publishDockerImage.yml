@@ -65,17 +65,6 @@ jobs:
     runs-on: windows-2022
     steps:
       - uses: actions/checkout@v1
-      - name: Prepare Environment
-        run: |
-          # enable symlinks on Windows (https://git-scm.com/docs/git-config#Documentation/git-config.txt-coresymlinks)
-          git config --global core.symlinks true
-          # ... make sure they are *real* symlinks (https://github.com/git-for-windows/git/pull/156)
-          export MSYS=winsymlinks:nativestrict
-          # make sure line endings get checked out as-is
-          git config --global core.autocrlf false
-          git clone --depth 1 https://github.com/docker-library/official-images.git -b master ~/oi
-          # create a dummy empty image/layer so we can --filter since= later to get a meaningful image list
-          { echo FROM mcr.microsoft.com/windows/servercore:ltsc2022; echo RUN :; } | docker build --no-cache --tag image-list-marker -
       - name: Pull Dependencies
         run: |
           docker pull 'mcr.microsoft.com/windows/nanoserver:ltsc2022'
