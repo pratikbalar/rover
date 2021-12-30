@@ -12,9 +12,9 @@ RUN $url = 'https://github.com/im2nguyen/rover/releases/download/v2.2.1/rover_2.
 	Write-Host ('Downloading {0} ...' -f $url); \
 	Invoke-WebRequest -Uri $url -OutFile 'rover.zip'; \
   Write-Host 'Expanding ...'; \
-	Expand-Archive rover.zip -DestinationPath C:\ \
+	Expand-Archive rover.zip -DestinationPath C:\; \
   Write-Host 'Verifying install ("rover --version") ...'; \
-  .\rover --version
+  C:\rover --version
 
 FROM mcr.microsoft.com/windows/nanoserver:ltsc2022
 USER ContainerAdministrator
