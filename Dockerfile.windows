@@ -7,7 +7,7 @@ RUN $newPath = ('C:\;{0}' -f $env:PATH); \
 	[Environment]::SetEnvironmentVariable('PATH', $newPath, [EnvironmentVariableTarget]::Machine);
 USER ContainerUser
 WORKDIR C:\
-RUN $url = 'https://github.com/im2nguyen/rover/releases/download/v'${ROVER_VERSION}'/rover_'${ROVER_VERSION}'_windows_386.zip'; \
+RUN $url = 'https://github.com/im2nguyen/rover/releases/download/v2.2.1/rover_2.2.1_windows_386.zip'; \
 	[Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12; \
 	Write-Host ('Downloading {0} ...' -f $url); \
 	Invoke-WebRequest -Uri $url -OutFile 'rover.zip'; \
