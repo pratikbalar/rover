@@ -35,14 +35,6 @@ RUN --mount=type=cache,target=/root/.cache \
     --snapshot="no" \
     --post-hooks="sh -cx 'upx --ultra-brute --best /usr/local/bin/rover || true'"
 
-FROM scratch as release
-WORKDIR /tmp
-WORKDIR /src
-COPY --from=terraform /terraform           /usr/local/bin/terraform
-COPY --from=base      /etc/ssl/certs/      /etc/ssl/certs/
-COPY --from=binary    /usr/local/bin/rover /usr/local/bin/rover
-ENTRYPOINT ["/usr/local/bin/rover"]
-
 FROM --platform=$BUILDPLATFORM node:16-alpine as ui
 WORKDIR /src
 COPY ./ui/package*.json ./
@@ -50,3 +42,11 @@ RUN npm set progress=false && npm config set depth 0 && npm install
 COPY ./ui/public ./public
 COPY ./ui/src ./src
 RUN npm run build
+
+FROM scratch as release
+WORKDIR /tmp
+WORKDIR /src
+COPY --from=terraform /terraform           /usr/local/bin/terraform
+COPY --from=base      /etc/ssl/certs/      /etc/ssl/certs/
+COPY --from=binary    /usr/local/bin/rover /usr/local/bin/rover
+ENTRYPOINT ["/usr/local/bin/rover"]
