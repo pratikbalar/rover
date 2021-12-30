@@ -11,7 +11,7 @@ RUN npm run build
 FROM --platform=$BUILDPLATFORM alpine as terraform
 SHELL ["/bin/sh", "-cex"]
 ARG TARGETOS TARGETARCH
-RUN wget -O tf.zip 'https://releases.hashicorp.com/terraform/1.1.2/terraform_1.1.2_'${TARGETOS}'_'${TARGETARCH}'.zip'; \
+RUN wget -O tf.zip 'https://releases.hashicorp.com/terraform/'${TF_VERSION}'/terraform_'${TF_VERSION}'_'${TARGETOS}'_'${TARGETARCH}'.zip'; \
   unzip tf.zip
 
 FROM --platform=$BUILDPLATFORM crazymax/goreleaser-xx:latest AS goreleaser-xx
