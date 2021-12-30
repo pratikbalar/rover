@@ -1,14 +1,6 @@
-ARG TF_VERSION="1.1.2"
+ARG TF_VERSION="1.1.0"
 
-FROM --platform=$BUILDPLATFORM node:16-alpine as ui
-WORKDIR /src
-COPY ./ui/package*.json ./
-RUN npm set progress=false && npm config set depth 0 && npm install
-COPY ./ui/public ./public
-COPY ./ui/src ./src
-RUN npm run build
-
-FROM --platform=$BUILDPLATFORM alpine as terraform
+FROM --platform=$BUILDPLATFORM alpine:3.15 as terraform
 SHELL ["/bin/sh", "-cex"]
 ARG TARGETOS TARGETARCH
 RUN wget -O tf.zip 'https://releases.hashicorp.com/terraform/'${TF_VERSION}'/terraform_'${TF_VERSION}'_'${TARGETOS}'_'${TARGETARCH}'.zip'; \
@@ -50,3 +42,11 @@ COPY --from=terraform /terraform           /usr/local/bin/terraform
 COPY --from=base      /etc/ssl/certs/      /etc/ssl/certs/
 COPY --from=binary    /usr/local/bin/rover /usr/local/bin/rover
 ENTRYPOINT ["/usr/local/bin/rover"]
+
+FROM --platform=$BUILDPLATFORM node:16-alpine as ui
+WORKDIR /src
+COPY ./ui/package*.json ./
+RUN npm set progress=false && npm config set depth 0 && npm install
+COPY ./ui/public ./public
+COPY ./ui/src ./src
+RUN npm run build
