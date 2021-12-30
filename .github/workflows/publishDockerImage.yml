@@ -40,6 +40,7 @@ jobs:
             type=semver,pattern={{major}}.{{minor}}
             type=semver,pattern={{major}}
             type=edge
+            type=sha,format=short
           labels: |
             org.opencontainers.image.title=rover
             org.opencontainers.image.base.name=scratch
