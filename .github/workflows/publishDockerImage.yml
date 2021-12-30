@@ -39,7 +39,6 @@ jobs:
             type=semver,pattern={{version}}
             type=semver,pattern={{major}}.{{minor}}
             type=semver,pattern={{major}}
-            type=ref
             type=edge
           labels: |
             org.opencontainers.image.title=rover
