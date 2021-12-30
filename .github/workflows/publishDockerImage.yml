@@ -3,8 +3,8 @@ name: PublishDockerImage
 # Run whenever the publish job runs
 on:
   push:
-    # tags:
-    #   - "v*"
+    tags:
+      - "v*"
 
 jobs:
   push_to_registry:
@@ -34,7 +34,7 @@ jobs:
         id: meta
         uses: docker/metadata-action@v3
         with:
-          images: pratikimprowise/rover
+          images: im2nguyen/rover
           tags: |
             type=semver,pattern={{version}}
             type=semver,pattern={{major}}.{{minor}}
