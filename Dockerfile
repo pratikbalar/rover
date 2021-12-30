@@ -49,4 +49,4 @@ WORKDIR /src
 COPY --from=terraform /terraform           /usr/local/bin/terraform
 COPY --from=base      /etc/ssl/certs/      /etc/ssl/certs/
 COPY --from=binary    /usr/local/bin/rover /usr/local/bin/rover
-ENTRYPOINT [ "/bin/rover" ]
+ENTRYPOINT ["/usr/local/bin/rover"]
