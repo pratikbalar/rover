@@ -1,5 +1,13 @@
-ARG GO_VERSION=1.17
 ARG NODE_VERSION=16
+ARG GO_VERSION=1.17
+
+FROM --platform=$BUILDPLATFORM node:${NODE_VERSION}-alpine as ui
+WORKDIR /src
+COPY ./ui/package*.json ./
+RUN npm set progress=false && npm config set depth 0 && npm install
+COPY ./ui/public ./public
+COPY ./ui/src ./src
+RUN npm run build
 
 FROM --platform=$BUILDPLATFORM alpine:3.15 as terraform
 SHELL ["/bin/sh", "-cex"]
@@ -36,14 +44,6 @@ RUN --mount=type=cache,target=/root/.cache \
     --artifacts="bin" \
     --snapshot="no" \
     --post-hooks="sh -cx 'upx --ultra-brute --best /usr/local/bin/rover || true'"
-
-FROM --platform=$BUILDPLATFORM node:${NODE_VERSION}-alpine as ui
-WORKDIR /src
-COPY ./ui/package*.json ./
-RUN npm set progress=false && npm config set depth 0 && npm install
-COPY ./ui/public ./public
-COPY ./ui/src ./src
-RUN npm run build
 
 FROM scratch
 WORKDIR /tmp
