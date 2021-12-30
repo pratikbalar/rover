@@ -25,8 +25,8 @@ RUN apk --update add --no-cache git ca-certificates && \
 WORKDIR /src
 
 FROM base AS vendored
-COPY go.* .
-RUN --mount=type=cache,target=/go/pkg/mod \
+RUN --mount=type=bind,target=.,rw \
+  --mount=type=cache,target=/go/pkg/mod \
   go mod tidy && go mod download
 
 FROM vendored AS binary
