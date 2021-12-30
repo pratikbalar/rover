@@ -14,7 +14,7 @@ RUN $url = 'https://github.com/im2nguyen/rover/releases/download/v2.2.1/rover_2.
   Write-Host 'Expanding ...'; \
 	Expand-Archive rover.zip -DestinationPath C:\; \
   Write-Host 'Verifying install ("rover --version") ...'; \
-  C:\rover --version
+  C:\\rover --version
 
 FROM mcr.microsoft.com/windows/nanoserver:ltsc2022
 USER ContainerAdministrator
