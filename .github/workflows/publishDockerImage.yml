@@ -3,8 +3,8 @@ name: PublishDockerImage
 # Run whenever the publish job runs
 on:
   push:
-    tags:
-      - "v*"
+    # tags:
+    #   - "v*"
 
 jobs:
   push_to_registry:
