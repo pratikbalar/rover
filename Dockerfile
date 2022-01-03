@@ -31,10 +31,11 @@ RUN --mount=type=bind,target=.,rw \
   --mount=type=cache,target=/go/pkg/mod \
   go mod tidy && go mod download
 
+## Fat image
 FROM vendored AS binary
-ARG TARGETPLATFORM
 COPY --from=ui /src/dist /src/ui/dist
 COPY . .
+ARG TARGETPLATFORM
 RUN --mount=type=cache,target=/root/.cache \
   --mount=type=cache,target=/go/pkg/mod \
   goreleaser-xx --debug \
@@ -42,13 +43,61 @@ RUN --mount=type=cache,target=/root/.cache \
     --main="." \
     --dist="/out" \
     --artifacts="bin" \
-    --snapshot="no" \
-    --post-hooks="sh -cx 'upx --ultra-brute --best /usr/local/bin/rover || true'"
+    --artifacts="archive" \
+    --snapshot="no"
 
-FROM scratch
+FROM scratch as fat
 WORKDIR /tmp
 WORKDIR /src
 COPY --from=terraform /terraform           /usr/local/bin/terraform
 COPY --from=base      /etc/ssl/certs/      /etc/ssl/certs/
 COPY --from=binary    /usr/local/bin/rover /usr/local/bin/rover
 ENTRYPOINT ["/usr/local/bin/rover"]
+##
+
+## Slim image
+FROM vendored AS binary-slim
+COPY --from=ui /src/dist /src/ui/dist
+COPY . .
+ARG TARGETPLATFORM
+RUN --mount=type=bind,source=.,target=/src,rw \
+  --mount=type=cache,target=/root/.cache \
+  --mount=type=cache,target=/go/pkg/mod \
+  goreleaser-xx --debug \
+    --name="rover-slim" \
+    --flags="-trimpath" \
+    --flags="-a" \
+    --ldflags="-s -w" \
+    --main="." \
+    --dist="/out" \
+    --artifacts="bin" \
+    --artifacts="archive" \
+    --snapshot="no" \
+    --post-hooks="sh -c 'upx --ultra-brute --best /usr/local/bin/rover-slim || true'"
+
+FROM scratch as slim
+WORKDIR /tmp
+WORKDIR /src
+COPY --from=terraform   /terraform /usr/local/bin/terraform
+COPY --from=base        /etc/ssl/certs/ /etc/ssl/certs/
+COPY --from=binary-slim /usr/local/bin/rover-slim /usr/local/bin/rover
+ENTRYPOINT ["/usr/local/bin/rover"]
+##
+
+## get binary out
+### non slim binary
+FROM scratch AS artifact
+COPY --from=binary    /usr/local/bin/rover /usr/local/bin/rover
+###
+
+### slim binary
+FROM scratch AS artifact-slim
+COPY --from=binary-slim /usr/local/bin/rover-slim /usr/local/bin/rover
+###
+
+### All binaries
+FROM scratch AS artifact-all
+COPY --from=binary      /usr/local/bin/rover      /usr/local/bin/rover
+COPY --from=binary-slim /usr/local/bin/rover-slim /usr/local/bin/rover
+###
+##

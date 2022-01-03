@@ -51,17 +51,47 @@ jobs:
             org.opencontainers.image.version={{version}}
             org.opencontainers.image.source=https://github.com/im2nguyen/rover
 
-      - name: Build and push Docker image
-        uses: docker/build-push-action@v2
+      - name: Docker meta (slim)
+        id: meta-slim
+        uses: docker/metadata-action@v3
         with:
-          context: .
-          platforms: linux/386,linux/amd64,linux/arm64,linux/arm/v7,linux/arm/v6
+          images: im2nguyen/rover
+          tags: |
+            type=semver,suffix=-slim,pattern={{version}}
+            type=semver,suffix=-slim,pattern={{major}}.{{minor}}
+            type=semver,suffix=-slim,pattern={{major}}
+            type=edge,suffix=-slim
+            type=sha,prefix=,suffix=-slim,format=short
+          labels: |
+            org.opencontainers.image.title=rover
+            org.opencontainers.image.base.name=scratch
+            org.opencontainers.image.vendor=im2nguyen
+            org.opencontainers.image.authors=im2nguyen
+            org.opencontainers.image.licenses=MIT
+            org.opencontainers.image.description=Interactive Terraform visualization. State and configuration explorer.
+            org.opencontainers.image.version={{version}}-slim
+            org.opencontainers.image.source=https://github.com/im2nguyen/rover
+
+      - name: Build image
+        uses: docker/bake-action@v1
+        with:
+          files: |
+            ./docker-bake.hcl
+            ${{ steps.meta.outputs.bake-file }}
+          targets: image-fat-all-arch
           push: ${{ github.event_name != 'pull_request' }}
-          tags: ${{ steps.meta.outputs.tags }}
-          labels: ${{ steps.meta.outputs.labels }}
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
-          build-args: |
-            TF_VERSION=1.1.2
-            NODE_VERSION=16
-            GO_VERSION=1.17.5
+          set: |
+            *.cache-from=type=gha
+            *.cache-to=type=gha,mode=max
+
+      - name: Build image (slim)
+        uses: docker/bake-action@v1
+        with:
+          files: |
+            ./docker-bake.hcl
+            ${{ steps.meta.outputs.bake-file }}
+          targets: image-slim-all-arch
+          push: ${{ github.event_name != 'pull_request' }}
+          set: |
+            *.cache-from=type=gha
+            *.cache-to=type=gha,mode=max
