@@ -39,7 +39,7 @@ jobs:
             type=semver,pattern={{version}}
             type=semver,pattern={{major}}.{{minor}}
             type=semver,pattern={{major}}
-            type=edge
+            type=raw,value=edge
             type=sha,prefix=,format=short
           labels: |
             org.opencontainers.image.title=rover
@@ -55,12 +55,12 @@ jobs:
         id: meta-slim
         uses: docker/metadata-action@v3
         with:
-          images: im2nguyen/rover
+          images: docker.io/im2nguyen/rover
           tags: |
             type=semver,suffix=-slim,pattern={{version}}
             type=semver,suffix=-slim,pattern={{major}}.{{minor}}
             type=semver,suffix=-slim,pattern={{major}}
-            type=edge,suffix=-slim
+            type=raw,value=edge-slim
             type=sha,prefix=,suffix=-slim,format=short
           labels: |
             org.opencontainers.image.title=rover
@@ -77,8 +77,7 @@ jobs:
         with:
           files: |
             ./docker-bake.hcl
-            ${{ steps.meta.outputs.bake-file }}
-          targets: image-fat-all-arch
+          targets: artifact
           push: ${{ github.event_name != 'pull_request' }}
           set: |
             *.cache-from=type=gha
@@ -89,8 +88,7 @@ jobs:
         with:
           files: |
             ./docker-bake.hcl
-            ${{ steps.meta.outputs.bake-file }}
-          targets: image-slim-all-arch
+          targets: artifact-slim
           push: ${{ github.event_name != 'pull_request' }}
           set: |
             *.cache-from=type=gha

@@ -18,18 +18,45 @@ target "_common" {
   }
 }
 
-target "platform" {
+target "image-platform" {
   platforms = [
-    "linux/386",
     "linux/amd64",
+    "linux/386",
     "linux/arm64",
-    "linux/arm/v7",
-    "linux/arm/v6",
+    "linux/arm",
+  ]
+}
+
+target "bin-platform" {
+  platforms = [
+    "linux/amd64",
+    "linux/386",
+    "linux/arm64",
+    "linux/arm",
+    "freebsd/amd64",
+    "freebsd/386",
+    "freebsd/arm64",
+    "freebsd/arm",
+    "windows/amd64",
+    "freebsd/386",
+    "windows/arm64",
+    "windows/arm",
+    "darwin/amd64",
+    "windows/386",
+    "darwin/arm64",
+    "darwin/arm",
   ]
 }
 
 group "default" {
-  targets = ["image-fat"]
+  targets = ["image-local"]
+}
+
+target "image-local" {
+  inherits = ["_common"]
+  target   = "slim"
+  tags     = ["local-image/rover:edge"]
+  output   = ["type=docker"]
 }
 
 target "image-fat" {
@@ -43,12 +70,12 @@ target "image-slim" {
 }
 
 target "image-fat-all-arch" {
-  inherits = ["_common", "platform"]
+  inherits = ["_common", "image-platform"]
   target   = "fat"
 }
 
 target "image-slim-all-arch" {
-  inherits = ["_common", "platform"]
+  inherits = ["_common", "image-platform"]
   target   = "slim"
 }
 
@@ -66,7 +93,7 @@ target "artifact-slim" {
 
 # Creating all full, slim artifact with arm and amd platform
 target "artifact-all" {
-  inherits = ["artifact-all", "platform"]
+  inherits = ["artifact-all", "bin-platform"]
   target   = "artifact-all"
   output   = ["./dist"]
 }

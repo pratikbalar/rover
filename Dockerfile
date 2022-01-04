@@ -41,6 +41,7 @@ RUN --mount=type=cache,target=/root/.cache \
   goreleaser-xx --debug \
     --name="rover" \
     --main="." \
+    --ldflags="-X main.version={{.Version}} -X main.commit={{.Commit}}" \
     --dist="/out" \
     --artifacts="bin" \
     --artifacts="archive" \
@@ -60,14 +61,13 @@ FROM vendored AS binary-slim
 COPY --from=ui /src/dist /src/ui/dist
 COPY . .
 ARG TARGETPLATFORM
-RUN --mount=type=bind,source=.,target=/src,rw \
-  --mount=type=cache,target=/root/.cache \
+RUN --mount=type=cache,target=/root/.cache \
   --mount=type=cache,target=/go/pkg/mod \
   goreleaser-xx --debug \
     --name="rover-slim" \
     --flags="-trimpath" \
     --flags="-a" \
-    --ldflags="-s -w" \
+    --ldflags="-s -w -X main.version={{.Version}} -X main.commit={{.Commit}}" \
     --main="." \
     --dist="/out" \
     --artifacts="bin" \
@@ -87,17 +87,17 @@ ENTRYPOINT ["/usr/local/bin/rover"]
 ## get binary out
 ### non slim binary
 FROM scratch AS artifact
-COPY --from=binary    /usr/local/bin/rover /usr/local/bin/rover
+COPY --from=binary      /out /
 ###
 
 ### slim binary
 FROM scratch AS artifact-slim
-COPY --from=binary-slim /usr/local/bin/rover-slim /usr/local/bin/rover
+COPY --from=binary-slim /out /
 ###
 
 ### All binaries
 FROM scratch AS artifact-all
-COPY --from=binary      /usr/local/bin/rover      /usr/local/bin/rover
-COPY --from=binary-slim /usr/local/bin/rover-slim /usr/local/bin/rover
+COPY --from=binary      /out /
+COPY --from=binary-slim /out /
 ###
 ##
