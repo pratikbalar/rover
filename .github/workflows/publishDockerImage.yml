@@ -41,6 +41,8 @@ jobs:
           GO_VERSION: "1.17"
           VERSION: ${{ steps.vars.outputs.version }}
           GIT_SHA: ${{ steps.vars.outputs.sha_short }}
+          TAGS: im2nguyen/rover:latet
+          TAGS_SLIM: im2nguyen/rover:slim
         with:
           targets: |
             image-all
