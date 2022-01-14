@@ -44,7 +44,7 @@ jobs:
         with:
           targets: |
             image-all
-            image-slim-all-arch
+            image-slim-all
           push: false
           files: docker-bake.hcl
           set: |
